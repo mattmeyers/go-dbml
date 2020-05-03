@@ -3,6 +3,8 @@ package dbml
 import (
 	"io"
 	"io/ioutil"
+
+	"github.com/mattmeyers/go-dbml/dbml/token"
 )
 
 func toLower(r rune) rune {
@@ -17,9 +19,7 @@ func isDigit(r rune) bool {
 	return '0' <= r && r <= '9'
 }
 
-func Tokenize(r io.ReadCloser) []Token {
-	defer r.Close()
-
+func Tokenize(r io.Reader) token.Tokens {
 	f, err := ioutil.ReadAll(r)
 	if err != nil {
 		panic(err)
@@ -27,8 +27,8 @@ func Tokenize(r io.ReadCloser) []Token {
 
 	s := []rune(string(f))
 
-	tokens := make([]Token, 0)
-	var tok Token
+	tokens := make(token.Tokens, 0)
+	var tok token.Token
 	i := 0
 
 	for i < len(s) {
@@ -39,7 +39,7 @@ func Tokenize(r io.ReadCloser) []Token {
 				l++
 			}
 			v := string(s[i:l])
-			tok = Token{Value: v, Type: Lookup(v)}
+			tok = token.Token{Value: v, Type: token.Lookup(v)}
 			i = l
 		case isDigit(r):
 			l := i + 1
@@ -47,53 +47,53 @@ func Tokenize(r io.ReadCloser) []Token {
 				l++
 			}
 			v := string(s[i:l])
-			tok = Token{Value: v, Type: Int}
+			tok = token.Token{Value: v, Type: token.Int}
 			i = l
 		case r == '"':
 			l := i + 1
 			for s[l] != '"' {
 				l++
 			}
-			tok = Token{Value: string(s[i+1 : l]), Type: Quote}
+			tok = token.Token{Value: string(s[i+1 : l]), Type: token.Quote}
 			i = l + 1
 		case r == '\'':
 			l := i + 1
 			for s[l] != '\'' {
 				l++
 			}
-			tok = Token{Value: string(s[i+1 : l]), Type: String}
+			tok = token.Token{Value: string(s[i+1 : l]), Type: token.String}
 			i = l + 1
 		case r == '`':
 			l := i + 1
 			for s[l] != '`' {
 				l++
 			}
-			tok = Token{Value: string(s[i+1 : l]), Type: FuncExpr}
+			tok = token.Token{Value: string(s[i+1 : l]), Type: token.FuncExpr}
 			i = l + 1
 		case r == '(':
 			i++
-			tok = Token{Value: "(", Type: LParen}
+			tok = token.Token{Value: "(", Type: token.LParen}
 		case r == ')':
 			i++
-			tok = Token{Value: ")", Type: RParen}
+			tok = token.Token{Value: ")", Type: token.RParen}
 		case r == '[':
 			i++
-			tok = Token{Value: "[", Type: LBrack}
+			tok = token.Token{Value: "[", Type: token.LBrack}
 		case r == ']':
 			i++
-			tok = Token{Value: "]", Type: RBrack}
+			tok = token.Token{Value: "]", Type: token.RBrack}
 		case r == '{':
 			i++
-			tok = Token{Value: "{", Type: LBrace}
+			tok = token.Token{Value: "{", Type: token.LBrace}
 		case r == '}':
 			i++
-			tok = Token{Value: "}", Type: RBrace}
+			tok = token.Token{Value: "}", Type: token.RBrace}
 		case r == ':':
 			i++
-			tok = Token{Value: ":", Type: Colon}
+			tok = token.Token{Value: ":", Type: token.Colon}
 		case r == ',':
 			i++
-			tok = Token{Value: ",", Type: Comma}
+			tok = token.Token{Value: ",", Type: token.Comma}
 		default:
 			i++
 			continue
@@ -102,5 +102,5 @@ func Tokenize(r io.ReadCloser) []Token {
 		tokens = append(tokens, tok)
 	}
 
-	return tokens
+	return append(tokens, token.Token{Type: token.EOF})
 }

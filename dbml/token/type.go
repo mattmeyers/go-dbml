@@ -1,4 +1,4 @@
-package dbml
+package token
 
 import "strconv"
 
