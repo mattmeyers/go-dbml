@@ -1,10 +1,11 @@
-package token
+package dbml
 
 import "fmt"
 
 type Token struct {
+	Pos   Pos
+	Type  TokenType
 	Value string
-	Type
 }
 
 type Tokens []Token
@@ -18,5 +19,10 @@ func (t Tokens) Print() {
 }
 
 func (t Token) String() string {
-	return fmt.Sprintf("{Type: %10s\tValue: %s}", t.Type, t.Value)
+	return fmt.Sprintf("{Type: %13s\tLine: %3d\tCol: %3d\tValue: %s}", t.Type, t.Pos.Line, t.Pos.Col, t.Value)
+}
+
+type Pos struct {
+	Line int
+	Col  int
 }
