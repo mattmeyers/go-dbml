@@ -25,7 +25,7 @@ func Tokenize(r io.Reader) Tokens {
 	tokens := make(Tokens, 0)
 	var tok Token
 	i := 0
-	line, col := 0, 0
+	line, col := 1, 1
 
 	for i < len(s) {
 		switch r := s[i]; {
@@ -102,7 +102,7 @@ func Tokenize(r io.Reader) Tokens {
 			col++
 		case isNewline(r):
 			line++
-			col = 0
+			col = 1
 			i++
 			continue
 		default:

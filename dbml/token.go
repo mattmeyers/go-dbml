@@ -26,3 +26,5 @@ type Pos struct {
 	Line int
 	Col  int
 }
+
+func (p Pos) String() string { return fmt.Sprintf("Line: %d\tCol: %d", p.Line, p.Col) }
